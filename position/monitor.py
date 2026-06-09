@@ -1,12 +1,16 @@
-"""查询币安 U 本位合约当前持仓，每五分钟发送到飞书。
+"""合约持仓监控（独立运行）。
 
-从项目内 `.env` 读取配置，查询当前非空仓持仓，汇总后推送到飞书机器人。
+每 N 分钟查询持仓并推送到飞书。
 """
 
 from __future__ import annotations
 
 import logging
+import sys
 import time
+from datetime import datetime, timezone
+
+sys.path.insert(0, str(__import__("pathlib").Path(__file__).resolve().parent.parent))
 
 from binance_client import BinanceClient
 from config import load_settings
@@ -50,7 +54,7 @@ def build_position_message(positions, minute_text: str) -> str:
 
 
 def main() -> None:
-    """启动持仓监控循环，每五分钟查询并推送到飞书。"""
+    """启动持仓监控循环。"""
 
     logging.basicConfig(
         level=logging.INFO,
@@ -79,8 +83,6 @@ def main() -> None:
             if not positions:
                 logging.info("当前没有合约持仓，跳过本轮")
             else:
-                from datetime import datetime, timezone
-
                 minute_text = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
                 message = build_position_message(positions, minute_text)
                 feishu_bot.send_text(message)

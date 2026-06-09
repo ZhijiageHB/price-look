@@ -18,6 +18,8 @@ class Settings:
     binance_api_key: str
     binance_api_secret: str
     feishu_webhook: str
+    feishu_price_webhook: str
+    feishu_index_webhook: str
     symbols: list[str]
     request_timeout: int
     send_delay_seconds: int
@@ -66,6 +68,14 @@ def load_settings() -> Settings:
             "https://open.feishu.cn/open-apis/bot/v2/hook/b0473838-6d18-4ac5-b5fa-3be8c6a11e5b",
         ),
     ).strip()
+    feishu_price_webhook = env_map.get(
+        "FEISHU_PRICE_WEBHOOK",
+        os.getenv("FEISHU_PRICE_WEBHOOK", ""),
+    ).strip()
+    feishu_index_webhook = env_map.get(
+        "FEISHU_INDEX_WEBHOOK",
+        os.getenv("FEISHU_INDEX_WEBHOOK", ""),
+    ).strip()
     binance_api_key = env_map.get("BINANCE_API_KEY", os.getenv("BINANCE_API_KEY", "")).strip()
     binance_api_secret = env_map.get(
         "BINANCE_API_SECRET",
@@ -80,6 +90,8 @@ def load_settings() -> Settings:
         binance_api_key=binance_api_key,
         binance_api_secret=binance_api_secret,
         feishu_webhook=feishu_webhook,
+        feishu_price_webhook=feishu_price_webhook or feishu_webhook,
+        feishu_index_webhook=feishu_index_webhook or feishu_webhook,
         symbols=symbols,
         request_timeout=int(env_map.get("REQUEST_TIMEOUT", os.getenv("REQUEST_TIMEOUT", "10"))),
         send_delay_seconds=int(
