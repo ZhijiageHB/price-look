@@ -14,7 +14,7 @@ sys.path.insert(0, str(__import__("pathlib").Path(__file__).resolve().parent.par
 
 from config import load_settings
 from feishu_bot import FeishuBot
-from index.data import INDEX_MAP, build_index_message, fetch_index_data
+from index.data import INDEX_MAP, build_index_message, fetch_index_data, filter_trading
 
 
 def main() -> None:
@@ -34,8 +34,12 @@ def main() -> None:
             if not data:
                 logging.info("本轮无有效数据，跳过")
                 continue
+            trading = filter_trading(data)
+            if not trading:
+                logging.info("当前无交易中的指数，跳过推送")
+                continue
             minute_text = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
-            message = build_index_message(data, minute_text)
+            message = build_index_message(trading, minute_text)
             feishu_bot.send_text(message)
             logging.info("飞书推送成功，共 %d 个指数", len(data))
         except Exception:  # noqa: BLE001

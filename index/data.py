@@ -16,7 +16,7 @@ os.environ.setdefault("HTTPS_PROXY", _PROXY)
 
 import yfinance as yf  # noqa: E402
 
-# 按地区分组的大盘指数，推送时美国在最上面，其次韩国、日本、中国
+# 按地区分组的大盘指数，推送时美国在最上面，其次韩国、日本
 INDEX_MAP: dict[str, str] = {
     # 美国
     "^IXIC": "纳斯达克",
@@ -26,11 +26,6 @@ INDEX_MAP: dict[str, str] = {
     "^KS11": "韩国KOSPI",
     # 日本
     "^N225": "日经225",
-    # 中国
-    "000001.SS": "上证指数",
-    "399001.SZ": "深证成指",
-    "399006.SZ": "创业板指",
-    "^HSI": "恒生指数",
 }
 
 # 交易时段（当地时间）：(开盘时, 开盘分, 收盘时, 收盘分)
@@ -40,10 +35,6 @@ _TRADING_HOURS: dict[str, tuple[int, int, int, int]] = {
     "^DJI": (9, 30, 16, 0),
     "^KS11": (9, 0, 15, 30),    # 韩股 09:00-15:30 KST
     "^N225": (9, 0, 15, 0),     # 日股 09:00-15:00 JST
-    "000001.SS": (9, 30, 15, 0),  # A股 09:30-15:00 CST
-    "399001.SZ": (9, 30, 15, 0),
-    "399006.SZ": (9, 30, 15, 0),
-    "^HSI": (9, 30, 16, 0),     # 港股 09:30-16:00 HKT
 }
 
 # 各市场时区偏移（相对于 UTC）
@@ -51,8 +42,6 @@ _TIMEZONE_OFFSET: dict[str, int] = {
     "^IXIC": -4, "^GSPC": -4, "^DJI": -4,  # EDT (UTC-4)
     "^KS11": 9,   # KST (UTC+9)
     "^N225": 9,   # JST (UTC+9)
-    "000001.SS": 8, "399001.SZ": 8, "399006.SZ": 8,  # CST (UTC+8)
-    "^HSI": 8,    # HKT (UTC+8)
 }
 
 
@@ -114,12 +103,17 @@ def fetch_index_data(tickers: list[str]) -> list[dict]:
     return results
 
 
+def filter_trading(data: list[dict]) -> list[dict]:
+    """只保留当前正在交易的指数，过滤掉未开盘、已收盘、休市的。"""
+
+    return [item for item in data if item["status"] == "交易中"]
+
+
 # 地区分组：用于插入分隔线
 _REGION_GROUPS: list[set[str]] = [
     {"^IXIC", "^GSPC", "^DJI"},           # 美国
     {"^KS11"},                              # 韩国
     {"^N225"},                              # 日本
-    {"000001.SS", "399001.SZ", "399006.SZ", "^HSI"},  # 中国
 ]
 
 _SEPARATOR = "─" * 20

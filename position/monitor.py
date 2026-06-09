@@ -74,7 +74,7 @@ def main() -> None:
         logging.error("初始化失败: %s", exc)
         return
 
-    interval_seconds = 60  # 2 分钟
+    interval_seconds = 60  # 1 分钟
     logging.info("持仓监控启动，每 %d 秒推送一次", interval_seconds)
 
     while True:

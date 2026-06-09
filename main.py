@@ -41,7 +41,7 @@ def position_monitor(settings) -> None:
         api_secret=settings.binance_api_secret,
     )
     feishu_bot = FeishuBot(settings.feishu_webhook, settings.request_timeout)
-    interval = 120  # 2 分钟
+    interval = 60  # 1 分钟
     logging.info("持仓监控线程启动，每 %d 秒推送一次", interval)
 
     while True:
@@ -62,7 +62,7 @@ def position_monitor(settings) -> None:
 def market_index_monitor(settings) -> None:
     """大盘指数监控线程。"""
 
-    from index.data import INDEX_MAP, build_index_message, fetch_index_data
+    from index.data import INDEX_MAP, build_index_message, fetch_index_data, filter_trading
 
     index_feishu_bot = FeishuBot(settings.feishu_index_webhook, settings.request_timeout)
     tickers = list(INDEX_MAP.keys())
@@ -76,8 +76,12 @@ def market_index_monitor(settings) -> None:
             if not data:
                 logging.info("大盘指数：本轮无有效数据，跳过")
                 continue
+            trading = filter_trading(data)
+            if not trading:
+                logging.info("大盘指数：当前无交易中的指数，跳过推送")
+                continue
             minute_text = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
-            message = build_index_message(data, minute_text)
+            message = build_index_message(trading, minute_text)
             index_feishu_bot.send_text(message)
             logging.info("大盘指数：飞书推送成功，共 %d 个指数", len(data))
         except Exception:  # noqa: BLE001
