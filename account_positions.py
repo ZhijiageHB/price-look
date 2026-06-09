@@ -13,7 +13,7 @@ from config import load_settings
 from feishu_bot import FeishuBot
 
 
-def format_position_line(symbol: str, value: float, digits: int = 4) -> str:
+def format_position_line(symbol: str, value: float, digits: int = 2) -> str:
     """统一格式化数值，避免输出过长。"""
 
     return f"{symbol}{value:.{digits}f}".rstrip("0").rstrip(".")
@@ -37,8 +37,8 @@ def build_position_message(positions, minute_text: str) -> str:
         side_text = "多" if position.quantity > 0 else "空"
         lines.append(
             f"{position.symbol} {side_text} "
-            f"开仓：{format_position_line('', position.entry_price)} "
-            f"标记价：{format_position_line('', position.mark_price)} "
+            f"均价：{format_position_line('', position.entry_price)} "
+            f"现价：{format_position_line('', position.mark_price)} "
             f"保证金：{format_position_line('', position.initial_margin)} "
             f"收益：{position.unrealized_profit:+.2f} "
             f"收益率：{roi_text}"
@@ -70,7 +70,7 @@ def main() -> None:
         logging.error("初始化失败: %s", exc)
         return
 
-    interval_seconds = 120  # 2 分钟
+    interval_seconds = 60  # 2 分钟
     logging.info("持仓监控启动，每 %d 秒推送一次", interval_seconds)
 
     while True:

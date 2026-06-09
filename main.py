@@ -48,9 +48,9 @@ def format_line(ticker: MinuteTicker) -> str:
     """把单个币对转换成用户要求的一行文本。"""
 
     line = (
-        f"{ticker.symbol} 现价：{ticker.close_price:.8f}".rstrip("0").rstrip(".")
-        + f" 开盘：{ticker.open_price:.8f}".rstrip("0").rstrip(".")
-        + f" 收盘：{ticker.close_price:.8f}".rstrip("0").rstrip(".")
+        f"{ticker.symbol} 现价：{ticker.close_price:.2f}"
+        + f" 开盘：{ticker.open_price:.2f}"
+        + f" 收盘：{ticker.close_price:.2f}"
         + f" 振幅：{ticker.change_pct:+.2f}%"
     )
     # 关键业务逻辑：当分钟振幅绝对值超过 0.2% 时，按涨跌方向追加不同颜色的预警符号。
