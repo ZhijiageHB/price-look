@@ -32,7 +32,7 @@ python3 index/monitor.py     # 大盘指数
 - **feishu_bot.py** — 飞书 webhook 发送器，纯文本消息。
 - **price/** — 自选币种分钟行情。`formatter.py` 提供格式化工具，`monitor.py` 为独立入口。
 - **position/** — 合约持仓监控。`monitor.py` 含 `build_position_message` 供 main.py 线程调用。
-- **index/** — 全球大盘指数。`data.py` 通过 yfinance 获取数据并判断交易时段，`monitor.py` 为独立入口。
+- **index/** — 全球大盘指数。`data.py` 通过东方财富 push2 接口获取数据并判断交易时段，`monitor.py` 为独立入口。
 
 ## 核心数据结构
 
@@ -45,5 +45,5 @@ python3 index/monitor.py     # 大盘指数
 ## 注意事项
 
 - 三个功能使用三个独立的飞书 webhook，分别在 `.env` 中配置。
-- 大盘指数通过 yfinance 获取，需设置代理（默认 `127.0.0.1:7897`）。
+- 大盘指数通过东方财富 push2 接口获取，国内直连无需代理。
 - `.env` 含真实 API 凭证，已在 `.gitignore` 中排除。

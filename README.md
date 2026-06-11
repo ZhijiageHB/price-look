@@ -111,7 +111,7 @@ price-look/
 ├── position/                # 合约持仓监控
 │   └── monitor.py
 └── index/                   # 全球大盘指数
-    ├── data.py              # 数据层（yfinance + 交易时段判断）
+    ├── data.py              # 数据层（东方财富 push2 接口 + 交易时段判断）
     └── monitor.py           # 独立运行入口
 ```
 
