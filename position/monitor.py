@@ -28,6 +28,8 @@ def build_position_message(positions, minute_text: str) -> str:
 
     lines: list[str] = [f"合约持仓汇总 {minute_text}"]
     total_profit = 0.0
+    total_margin = 0.0
+    roi_list: list[float] = []
 
     # 按收益率从高到低排序，收益率相同则按收益从高到低
     sorted_positions = sorted(
@@ -48,8 +50,16 @@ def build_position_message(positions, minute_text: str) -> str:
             f"收益率：{roi_text}"
         )
         total_profit += position.unrealized_profit
+        total_margin += position.initial_margin
+        if position.roi_pct is not None:
+            roi_list.append(position.roi_pct)
 
-    lines.append(f"总收益：{total_profit:+.2f} USDT")
+    avg_roi = sum(roi_list) / len(roi_list) if roi_list else 0.0
+    lines.append(
+        f"总收益：{total_profit:+.2f} USDT  "
+        f"总保证金：{format_position_line('', total_margin)} USDT  "
+        f"平均收益率：{avg_roi:+.2f}%"
+    )
     return "\n".join(lines)
 
 

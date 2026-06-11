@@ -62,28 +62,24 @@ def position_monitor(settings) -> None:
 def market_index_monitor(settings) -> None:
     """大盘指数监控线程。"""
 
-    from index.data import INDEX_MAP, build_index_message, fetch_index_data, filter_trading
+    from index.data import fetch_indices, filter_trading
+    from index.monitor import build_index_message
 
     index_feishu_bot = FeishuBot(settings.feishu_index_webhook, settings.request_timeout)
-    tickers = list(INDEX_MAP.keys())
     interval = 120  # 2 分钟
     logging.info("大盘指数线程启动，每 %d 秒推送一次", interval)
 
     while True:
         time.sleep(interval)
         try:
-            data = fetch_index_data(tickers)
-            if not data:
-                logging.info("大盘指数：本轮无有效数据，跳过")
-                continue
+            data = fetch_indices()
             trading = filter_trading(data)
             if not trading:
                 logging.info("大盘指数：当前无交易中的指数，跳过推送")
                 continue
-            minute_text = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
-            message = build_index_message(trading, minute_text)
+            message = build_index_message(trading)
             index_feishu_bot.send_text(message)
-            logging.info("大盘指数：飞书推送成功，共 %d 个指数", len(data))
+            logging.info("大盘指数：飞书推送成功，共 %d 个指数", len(trading))
         except Exception:  # noqa: BLE001
             logging.exception("大盘指数：本轮查询或推送失败")
 
